@@ -12,7 +12,7 @@ contract Venda_imovel {
   // DECLARAÇÃO DE VARIÁVEIS
     
   // enum Forma_pagamento { A_vista, Parcelado }
-    enum Estado { Vazio, Ativo, Em_andamento, Liberado }        // Define o estado do anúncio
+  enum Estado { Vazio, Ativo, Em_andamento, Liberado }        // Define o estado do anúncio
     
   struct anuncio {
     address payable vendedor;
@@ -57,7 +57,7 @@ contract Venda_imovel {
   /// @notice Deve ser chamada pelo vendedor e o anúncio deve estar ativo.
   /// @param id Identificador do anúncio a ser abortado.
   function abortar(uint id) public {
-    anuncio memory a = Anuncios[id];
+    anuncio storage a = Anuncios[id];
     require(msg.sender == a.vendedor,"Somente o vendedor pode chamar esta funcao!");
     require(a.estado == Estado.Ativo, "Estado invalido.");
     
@@ -72,8 +72,8 @@ contract Venda_imovel {
   /// @param id Identificador do anúncio vinculado à compra do imóvel.
   /// @param _safeHash Senha definida pelo comprador para "travar" o dinheiro no saldo do contrato.
   function comprar(uint id, string memory _safeHash) public payable {
-    anuncio memory a = Anuncios[id];
-    require(a.vendedor == address(0), "Anuncio inexistente.");
+    anuncio storage a = Anuncios[id];
+    require(a.vendedor != address(0), "Anuncio inexistente.");
     require(a.estado == Estado.Ativo, "Estado invalido.");
     require(msg.value == a.valorImovel, "Quantia paga invalida, confirme o valor da compra.");
         
@@ -91,11 +91,11 @@ contract Venda_imovel {
   /// @param id Identificador do anúncio a ser confirmado a entrega.
   /// @param key "Senha" de segurança definida pelo comprador para destravar o valor da compra.
   function confirmarRecebimento(uint id, string memory key) public {
-    anuncio memory a = Anuncios[id];
+    anuncio storage a = Anuncios[id];
     require(a.estado == Estado.Em_andamento, "Estado invalido.");
     require(msg.sender == a.vendedor || msg.sender == a.comprador, "Somente o vendedor ou o comprador podem chamar essa funcao!");
         
-    if (keccak256(abi.encodePacked(key)) == a.safeHash) {
+    if (hf.hash(key, id, a.comprador) == a.safeHash) {
       emit ItemRecebido(id);
       a.estado = Estado.Liberado;
 
@@ -109,11 +109,11 @@ contract Venda_imovel {
   /// @param id Identificador do anúncio vinculado à compra.
   /// @param key "Senha" de segurança definida pelo comprador para destravar o valor da compra.
   function pedirReembolso(uint id, string memory key) public {
-    anuncio memory a = Anuncios[id];
+    anuncio storage a = Anuncios[id];
     require(a.comprador == msg.sender, "Somente o comprador pode chamar esta funcao!");
     require(a.estado == Estado.Em_andamento, "Estado invalido.");
         
-    if (keccak256(abi.encodePacked(key)) == a.safeHash) {
+    if (hf.hash(key, id, a.comprador) == a.safeHash) {
       emit CompradorReembolsado(id, msg.sender);
       a.estado = Estado.Ativo;
 
@@ -124,8 +124,8 @@ contract Venda_imovel {
     
   /// @dev Limpa o espaço onde está salvo o anúncio.
   /// @param id Identificador do anúncio a ser limpo.
-  function limparAnuncio(uint id) private view {
-    anuncio memory a = Anuncios[id];
+  function limparAnuncio(uint id) private {
+    anuncio storage a = Anuncios[id];
 	    
     a.comprador = payable(address(0));
 	  a.vendedor = payable(address(0));
