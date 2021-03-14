@@ -17,15 +17,16 @@ contract Venda_imovel {
   struct anuncio {
     address payable vendedor;
     address payable comprador;
-    uint valorImovel;
+    uint valorImovel;    // Em Wei. 
     bytes32 safeHash;
     Estado estado;       // Como padrão, a variável recebe o seu primeiro membro (Estado.Vazio)
     // uint prazoEntrega;
     // Forma_pagamento public forma;
   }
     
-  mapping(uint => anuncio) Anuncios;      // Dicionário que mapeia os anúncios vinculados a esse Smart Contract
-  uint numAnuncios;                       // Identificador para selecionar algum anúncio 
+  mapping(uint => anuncio) public Anuncios;      // Dicionário que mapeia os anúncios vinculados a esse Smart Contract
+  uint[] listAnuncios;
+  uint numAnuncios;                       // Identificador para selecionar algum anúncio
 
 
   // DECLARAÇÃO DE EVENTOS
@@ -37,6 +38,7 @@ contract Venda_imovel {
   event CompraConfirmada(address comprador, uint _idAnuncio);
   event ItemRecebido(uint _idAnuncio);
   event CompradorReembolsado(uint _idAnuncio, address comprador);
+  event AnunciosAtivos(uint[]);
     
     
   // DECLARAÇÃO DE FUNÇÕES
@@ -45,6 +47,7 @@ contract Venda_imovel {
   /// @param _valorImovel Valor do imóvel a ser anunciado.
   /// @return anuncioID Identificador do anúncio no mapping Anuncios.
   function anunciar(uint _valorImovel) public returns (uint anuncioID){
+    listAnuncios.push(numAnuncios);
 		anuncioID = numAnuncios++;
 		emit NovoAnuncio(msg.sender, _valorImovel, anuncioID);
 		Anuncios[anuncioID].valorImovel= _valorImovel;
@@ -65,6 +68,11 @@ contract Venda_imovel {
     limparAnuncio(id);
   }
 
+  /// @dev Devolve uma lista de identificadores de anúncios.
+  /// @notice Devido a dificuldades no acesso ao valor de retorno da função, o valor será passado através de um event.
+  function listarAnuncios() public {
+    emit AnunciosAtivos(listAnuncios); 
+  }
 
   /// @dev Confirma a compra da parte do comprador.
   /// @notice Deve ser passado um "senha" para garantir que o valor seja repassado somente ao final da transação.
@@ -125,6 +133,7 @@ contract Venda_imovel {
   /// @dev Limpa o espaço onde está salvo o anúncio.
   /// @param id Identificador do anúncio a ser limpo.
   function limparAnuncio(uint id) private {
+    remove(id);
     anuncio storage a = Anuncios[id];
 	    
     a.comprador = payable(address(0));
@@ -133,4 +142,15 @@ contract Venda_imovel {
 	  a.safeHash = 0;
 	  a.estado = Estado.Vazio;
 	}
+    
+  /// @dev Remove um identificador da listAnuncios.
+  /// @param id Identificador do anúncio a ser removido da lista.
+  function remove(uint id) private {
+    for (uint i = 0; i < listAnuncios.length-1; i++){
+      if(listAnuncios[i] >= id)
+        listAnuncios[i] = listAnuncios[i+1];
+    }
+    delete listAnuncios[listAnuncios.length-1];
+    listAnuncios.pop();
+  }
 }
