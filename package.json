@@ -1,7 +1,23 @@
 {
-  "name": "venda-imoveis-app",
+  "name": "SmartContract_Imovel",
   "version": "0.1.0",
-  "private": true,
+  "description": "Projeto de desenvolvimento de um Smart Contract na linguagem Solidity integrado com interface em React.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LexTOliver/SmartContract_Imovel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LexTOliver/SmartContract_Imovel/issues"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
@@ -13,12 +29,6 @@
     "react-scripts": "4.0.3",
     "web-vitals": "^1.1.0",
     "web3": "^1.3.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
