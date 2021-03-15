@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
-import {HashFunction as hf} from "./SafeHash.sol";
-// import {GuessTheMagicWord as g} from "./compraHash.sol";
 
 /// @title Contrato de compra e venda de imóveis
 /// @author Alexandre T. de Oliveira
@@ -70,8 +68,9 @@ contract Venda_imovel {
 
   /// @dev Devolve uma lista de identificadores de anúncios.
   /// @notice Devido a dificuldades no acesso ao valor de retorno da função, o valor será passado através de um event.
-  function listarAnuncios() public {
-    emit AnunciosAtivos(listAnuncios); 
+  function listarAnuncios() public returns (uint[] memory) {
+    emit AnunciosAtivos(listAnuncios);
+    return listAnuncios;       
   }
 
   /// @dev Confirma a compra da parte do comprador.
@@ -89,7 +88,7 @@ contract Venda_imovel {
     a.estado = Estado.Em_andamento;
         
     a.comprador = payable(msg.sender);
-    a.safeHash = hf.hash(_safeHash, id, msg.sender);
+    a.safeHash = keccak256(abi.encodePacked(_safeHash, id, msg.sender));
   }
 
     
@@ -100,16 +99,14 @@ contract Venda_imovel {
   /// @param key "Senha" de segurança definida pelo comprador para destravar o valor da compra.
   function confirmarRecebimento(uint id, string memory key) public {
     anuncio storage a = Anuncios[id];
-    require(a.estado == Estado.Em_andamento, "Estado invalido.");
+    require(a.estado == Estado.Em_andamento, "Estado invalido. Anuncio nao esta em andamento para ser confirmado");
     require(msg.sender == a.vendedor || msg.sender == a.comprador, "Somente o vendedor ou o comprador podem chamar essa funcao!");
+    require(keccak256(abi.encodePacked(key, id, a.comprador)) == a.safeHash, "Senha incorreta!");
         
-    if (hf.hash(key, id, a.comprador) == a.safeHash) {
-      emit ItemRecebido(id);
-      a.estado = Estado.Liberado;
-
-      a.vendedor.transfer(a.valorImovel);
-      limparAnuncio(id);    
-    }
+    emit ItemRecebido(id);
+    a.estado = Estado.Liberado;   
+    a.vendedor.transfer(a.valorImovel);   
+    limparAnuncio(id);
   }
 
 
@@ -119,15 +116,13 @@ contract Venda_imovel {
   function pedirReembolso(uint id, string memory key) public {
     anuncio storage a = Anuncios[id];
     require(a.comprador == msg.sender, "Somente o comprador pode chamar esta funcao!");
-    require(a.estado == Estado.Em_andamento, "Estado invalido.");
-        
-    if (hf.hash(key, id, a.comprador) == a.safeHash) {
-      emit CompradorReembolsado(id, msg.sender);
-      a.estado = Estado.Ativo;
+    require(a.estado == Estado.Em_andamento, "Estado invalido. Nao ha valor inserido nesse anuncio para pedir reembolso");
+    require(keccak256(abi.encodePacked(key, id, msg.sender)) == a.safeHash, "Senha incorreta!");
 
-      a.comprador.transfer(a.valorImovel);
-      a.comprador = payable(address(0));
-    }
+    emit CompradorReembolsado(id, msg.sender);
+    a.estado = Estado.Ativo;
+    a.comprador.transfer(a.valorImovel);
+    a.comprador = payable(address(0));
   }
     
   /// @dev Limpa o espaço onde está salvo o anúncio.
