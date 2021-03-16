@@ -301,26 +301,29 @@ class App extends Component {
 	//Funções do contrato
 
 	getAnunciosId = async () => {
+
 		const la = await window.contract.methods.listarAnuncios().call().then((response) => { return response })
 		return la;
 	}
 
 	carregarAnuncios = async () => {
 		try {
+
 			const s = await this.getAnunciosId();
 			this.setState({ anuncios: [] });
-			for (let item in s) {
+			for (let item = 0; item < s.length; item++) {
 
-				await window.contract.methods.Anuncios(item).call()
+				await window.contract.methods.Anuncios(s[item]).call()
 					.then((response) => {
 						let obj = {
-							id: parseInt(item),
+							id: parseInt(s[item]),
 							vendedor: response.vendedor,
 							Comprador: response.comprador,
 							valorImovel: response.valorImovel,
 							estado: response.estado,
 						};
-						const lista = this.state.anuncios;
+
+						let lista = this.state.anuncios;
 						lista.push(obj);
 						this.setState({ anuncios: lista });
 					});
