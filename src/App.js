@@ -289,10 +289,6 @@ class App extends Component {
 			}
 		], '0xD5401f6f37502601a64D2EAB125F4f72B48331E9');
 
-
-
-		//this.state.ContractInstance = window.contract.at("0x77fc7a86A81D1550729A922bCE8fafbFd6f3dC97")
-
 		//carregar dados do contrato
 		this.getCurrentAccount();
 		this.carregarAnuncios();
@@ -308,7 +304,7 @@ class App extends Component {
 
 	carregarAnuncios = async () => {
 		try {
-
+			this.setState({ loading: "block" });
 			const s = await this.getAnunciosId();
 			this.setState({ anuncios: [] });
 			for (let item = 0; item < s.length; item++) {
@@ -318,7 +314,7 @@ class App extends Component {
 						let obj = {
 							id: parseInt(s[item]),
 							vendedor: response.vendedor,
-							Comprador: response.comprador,
+							comprador: response.comprador,
 							valorImovel: response.valorImovel,
 							estado: response.estado,
 						};
@@ -333,8 +329,10 @@ class App extends Component {
 
 		} catch (e) {
 			console.log("falha ao carregar anuncios");
-		}
+		} finally {
+			this.setState({ loading: "none" });
 
+		}
 
 	}
 
@@ -381,11 +379,10 @@ class App extends Component {
 
 	comprar = async (anuncio, senha) => {
 		this.setState({ loading: "block" });
-		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.comprar(anuncio.id, this.state.senhaCompra).send({
 			from: this.state.carteiraAtiva,
-			value: 10
+			value: anuncio.valorImovel
 		}).then(
 
 			(response) => {
@@ -401,7 +398,6 @@ class App extends Component {
 
 	confirmarRecebimento = async (anuncio, senha) => {
 		this.setState({ loading: "block" });
-		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.confirmarRecebimento(anuncio.id, this.state.senhaCompra).send({
 			from: this.state.carteiraAtiva
@@ -480,16 +476,16 @@ class App extends Component {
 						<TabPanel header="Minhas Operações">
 							<div>
 								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
-								{this.state.anuncios.filter((elem, index, arr) => elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva).map(anuncio => <ul key={anuncio.id}>
+								{this.state.anuncios.filter((elem, index, arr) => (elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva)).map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" /><br />
 									<div style={{ marginTop: "5px", marginBottom: "5px" }} >
-										<Button style={anuncio.estado === "2" ? { display: "none" } : {}} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
+										<Button style={anuncio.estado === "1" && anuncio.vendedor === this.state.carteiraAtiva ? {} : { display: "none" }} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
 									</div>
 									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
-										<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} />
+										<Button style={((anuncio.estado === "2") && (anuncio.comprador === this.state.carteiraAtiva)) ? {} : { display: "none" }} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} />
 									</div>
 									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
-										<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
+										<Button style={anuncio.estado === "2" ? {} : { display: "none" }} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
 									</div>
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
