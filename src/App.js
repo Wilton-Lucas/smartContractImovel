@@ -372,7 +372,8 @@ class App extends Component {
 		this.carregarAnuncios();
 		console.log('anunciado! id: ', idAnuncio);
 		this.setState({ loading: "none" });
-		window.alert('Imóvel anunciado.\nValor do imóvel: ETH ', this.state.valorAnuncio.toString());
+		let x =  this.state.valorAnuncio;
+		alert(`id: ${idAnuncio} \n valor do imovel : ${x}`);
 
 	}
 
@@ -452,10 +453,6 @@ class App extends Component {
 		return account;
 	}
 
-<<<<<<< HEAD
-
-=======
->>>>>>> eab085069dba50a4c59c6b01a0ebc659d8c2a285
 	render() {
 		return (
 			< div >
@@ -470,11 +467,7 @@ class App extends Component {
 								<label>Valor do Imóvel (ETH)</label><br />
 								<InputNumber value={this.state.valorAnuncio} onValueChange={(e) => { this.setState({ valorAnuncio: e.target.value }) }} showButtons buttonLayout="horizontal"
 									decrementButtonClassName="p-button-danger" incrementButtonClassName="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal" minFractionDigits={7} />
-<<<<<<< HEAD
-								<Button label="Anunciar Imóvel" className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} />
-=======
-								<Button label="Anunciar Imóvel" style={{ marginLeft: "25px" }} className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} onComplete={() => this.confirm} />
->>>>>>> eab085069dba50a4c59c6b01a0ebc659d8c2a285
+								<Button label="Anunciar Imóvel" style={{ marginLeft: "25px" }} className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} />
 								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
 							</div>
