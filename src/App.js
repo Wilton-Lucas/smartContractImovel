@@ -466,7 +466,7 @@ class App extends Component {
 
 								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "1").map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" />
-									<Button label="Comprar" style={{ marginLeft: "25px", marginBottom: "15px" }} className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
+									<Button label="Comprar" style={{ marginLeft: "25px", marginBottom: "15px" }} disabled={anuncio.vendedor === this.state.carteiraAtiva} className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
 
