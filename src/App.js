@@ -10,8 +10,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { ConfirmDialog } from 'primereact/confirmdialog'; // To use <ConfirmDialog> tag
-import { confirmDialog } from 'primereact/confirmdialog'; // To use confirmDialog method
+
 
 
 
@@ -356,7 +355,6 @@ class App extends Component {
 	}
 
 	anunciar = async () => {
-		window.alert('Imóvel anunciadoel: ETH ');
 
 		this.setState({ loading: "block" });
 		let weiValue = window.web3.utils.toWei(this.state.valorAnuncio.toString(), "ether");
@@ -374,7 +372,7 @@ class App extends Component {
 		this.carregarAnuncios();
 		console.log('anunciado! id: ', idAnuncio);
 		this.setState({ loading: "none" });
-		window.alert('Imóvel anunciado.\nValor do imóvel: ETH ', this.state.valorImovel.toString());
+		window.alert('Imóvel anunciado.\nValor do imóvel: ETH ', this.state.valorAnuncio.toString());
 
 	}
 
@@ -455,16 +453,6 @@ class App extends Component {
 	}
 
 
-	confirm = () => {
-		confirmDialog({
-			message: 'Imóvel anunciado. \n valor:' + this.state.valorAnuncio.toString(),
-			header: 'Confirmado',
-			icon: 'pi pi-exclamation-triangle',
-			accept: () => acceptFunc(),
-			reject: () => rejectFunc()
-		});
-	}
-
 	render() {
 		return (
 			< div >
@@ -479,7 +467,7 @@ class App extends Component {
 								<label>Valor do Imóvel (ETH)</label><br />
 								<InputNumber value={this.state.valorAnuncio} onValueChange={(e) => { this.setState({ valorAnuncio: e.target.value }) }} showButtons buttonLayout="horizontal"
 									decrementButtonClassName="p-button-danger" incrementButtonClassName="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal" minFractionDigits={7} />
-								<Button label="Anunciar Imóvel" className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} onComplete={() => this.confirm} />
+								<Button label="Anunciar Imóvel" className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} />
 								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
 							</div>
