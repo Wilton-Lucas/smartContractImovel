@@ -286,27 +286,8 @@ class App extends Component {
 				],
 				"stateMutability": "view",
 				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "listAnuncios",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
 			}
-		], '0x7688C6AA05957881DB6D36D062bF0D990e4a0bD7');
+		], '0xD5401f6f37502601a64D2EAB125F4f72B48331E9');
 
 
 
@@ -372,13 +353,12 @@ class App extends Component {
 		this.carregarAnuncios();
 		console.log('anunciado! id: ', idAnuncio);
 		this.setState({ loading: "none" });
-		let x =  this.state.valorAnuncio;
-		alert(`id: ${idAnuncio} \n valor do imovel : ${x}`);
+		alert(`id: ${idAnuncio} \nvalor do imovel : ${this.state.valorAnuncio}`);
 
 	}
 
 	abortar = async (_idAnuncio) => {
-		console.log('id: ', _idAnuncio);
+		this.setState({ loading: "block" });
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.abortar(_idAnuncio).send({
 			from: this.state.carteiraAtiva
@@ -391,10 +371,13 @@ class App extends Component {
 			}
 		);
 		this.carregarAnuncios();
-		console.log('Abortado! id: ', idAnuncio);
+		this.setState({ loading: "none" });
+		alert(`Abortado. id: ${_idAnuncio}`);
+
 	}
 
 	comprar = async (anuncio, senha) => {
+		this.setState({ loading: "block" });
 		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.comprar(anuncio.id, this.state.senhaCompra).send({
@@ -409,10 +392,12 @@ class App extends Component {
 			}
 		);
 		this.carregarAnuncios();
-		console.log('Comprado! id: ', idAnuncio);
+		this.setState({ loading: "none" });
+		alert(`Transação de compra em andamento. Confirme o recebimento. id: ${idAnuncio}`);
 	}
 
 	confirmarRecebimento = async (anuncio, senha) => {
+		this.setState({ loading: "block" });
 		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.confirmarRecebimento(anuncio.id, this.state.senhaCompra).send({
@@ -426,10 +411,12 @@ class App extends Component {
 			}
 		);
 		this.carregarAnuncios();
-		console.log('Confirmado! id: ', idAnuncio);
+		this.setState({ loading: "none" });
+		alert(`Compra confirmada. id: ${idAnuncio}`);
 	}
 
 	pedirReembolso = async (anuncio, senha) => {
+		this.setState({ loading: "block" });
 		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
 		const idAnuncio = await window.contract.methods.pedirReembolso(anuncio.id, this.state.senhaCompra).send({
@@ -443,7 +430,8 @@ class App extends Component {
 			}
 		);
 		this.carregarAnuncios();
-		console.log('Reembolsado! id: ', idAnuncio);
+		this.setState({ loading: "none" });
+		alert(`Pedido de reembolso confirmado. id: ${idAnuncio}`);
 	}
 
 
@@ -456,7 +444,7 @@ class App extends Component {
 	render() {
 		return (
 			< div >
-				<div class="header">
+				<div className="header">
 					<h1 style={{ color: "white", marginLeft: "45%" }}> Venda de imóveis </h1>
 					<hr />
 				</div>
@@ -464,29 +452,31 @@ class App extends Component {
 					<TabView>
 						<TabPanel header="Anunciar Imóvel">
 							<div>
+								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 								<label>Valor do Imóvel (ETH)</label><br />
 								<InputNumber value={this.state.valorAnuncio} onValueChange={(e) => { this.setState({ valorAnuncio: e.target.value }) }} showButtons buttonLayout="horizontal"
 									decrementButtonClassName="p-button-danger" incrementButtonClassName="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal" minFractionDigits={7} />
 								<Button label="Anunciar Imóvel" style={{ marginLeft: "25px" }} className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} />
-								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
 							</div>
 						</TabPanel>
 						<TabPanel header="Comprar Imóvel">
 							<div>
+								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
 								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "1").map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" />
 									<Button label="Comprar" style={{ marginLeft: "25px", marginBottom: "15px" }} className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
+
 								</ul>)}
 
 							</div>
 						</TabPanel>
 						<TabPanel header="Minhas Operações">
 							<div>
-
+								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 								{this.state.anuncios.filter((elem, index, arr) => elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva).map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" /><br />
 									<div style={{ marginTop: "5px", marginBottom: "5px" }} >
@@ -500,7 +490,9 @@ class App extends Component {
 									</div>
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
+
 								</ul>)}
+
 
 							</div>
 						</TabPanel>
