@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Projeto de desenvolvimento de um Smart Contract na linguagem Solidity integrado com interface em React.js",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
