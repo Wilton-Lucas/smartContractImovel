@@ -10,8 +10,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { ConfirmDialog } from 'primereact/confirmdialog'; // To use <ConfirmDialog> tag
-import { confirmDialog } from 'primereact/confirmdialog'; // To use confirmDialog method
+
 
 
 
@@ -454,22 +453,11 @@ class App extends Component {
 		return account;
 	}
 
-
-	confirm = () => {
-		confirmDialog({
-			message: 'Imóvel anunciado. \n valor:' + this.state.valorAnuncio.toString(),
-			header: 'Confirmado',
-			icon: 'pi pi-exclamation-triangle',
-			accept: () => acceptFunc(),
-			reject: () => rejectFunc()
-		});
-	}
-
 	render() {
 		return (
 			< div >
-				<div>
-					<h1> Venda de imóveis </h1>
+				<div class="header">
+					<h1 style={{ color: "white", marginLeft: "45%" }}> Venda de imóveis </h1>
 					<hr />
 				</div>
 				<div>
@@ -479,7 +467,7 @@ class App extends Component {
 								<label>Valor do Imóvel (ETH)</label><br />
 								<InputNumber value={this.state.valorAnuncio} onValueChange={(e) => { this.setState({ valorAnuncio: e.target.value }) }} showButtons buttonLayout="horizontal"
 									decrementButtonClassName="p-button-danger" incrementButtonClassName="p-button-success" incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal" minFractionDigits={7} />
-								<Button label="Anunciar Imóvel" className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} onComplete={() => this.confirm} />
+								<Button label="Anunciar Imóvel" style={{ marginLeft: "25px" }} className="p-button-raised p-button-rounded p-button-secondary" onClick={() => this.anunciar()} onComplete={() => this.confirm} />
 								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
 							</div>
@@ -489,7 +477,7 @@ class App extends Component {
 
 								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "1").map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" />
-									<Button label="Comprar" className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
+									<Button label="Comprar" style={{ marginLeft: "25px", marginBottom: "15px" }} className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
 								</ul>)}
@@ -501,9 +489,15 @@ class App extends Component {
 
 								{this.state.anuncios.filter((elem, index, arr) => elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva).map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" /><br />
-									<Button style={anuncio.estado === "2" ? { display: "none" } : {}} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
-									<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} />
-									<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
+									<div style={{ marginTop: "5px", marginBottom: "5px" }} >
+										<Button style={anuncio.estado === "2" ? { display: "none" } : {}} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
+									</div>
+									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
+										<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} />
+									</div>
+									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
+										<Button style={anuncio.estado === "1" ? { display: "none" } : {}} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
+									</div>
 									Vendedor: {anuncio.vendedor} <br />
 									Valor: {anuncio.valorImovel}
 								</ul>)}
