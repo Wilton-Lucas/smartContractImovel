@@ -12,8 +12,6 @@ import { InputNumber } from 'primereact/inputnumber';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 
-
-
 class App extends Component {
 
 	constructor(props) {
@@ -24,9 +22,7 @@ class App extends Component {
 			carteiraAtiva: 0,
 			senhaCompra: "senha",
 			valorAnuncio: 0,
-			anuncios: [],
-
-
+			anuncios: []
 		}
 	}
 
@@ -289,7 +285,7 @@ class App extends Component {
 			}
 		], '0xD5401f6f37502601a64D2EAB125F4f72B48331E9');
 
-		//carregar dados do contrato
+		//Carregar dados do contrato
 		this.getCurrentAccount();
 		this.carregarAnuncios();
 	}
@@ -323,121 +319,146 @@ class App extends Component {
 						lista.push(obj);
 						this.setState({ anuncios: lista });
 					});
-
-
 			}
 
 		} catch (e) {
-			console.log("falha ao carregar anuncios");
+			console.log("Falha ao carregar anúncios.");
 		} finally {
 			this.setState({ loading: "none" });
-
 		}
-
 	}
 
 	anunciar = async () => {
 
 		this.setState({ loading: "block" });
 		let weiValue = window.web3.utils.toWei(this.state.valorAnuncio.toString(), "ether");
-		console.log(weiValue)
 		await this.getCurrentAccount();
-		const idAnuncio = await window.contract.methods.anunciar(weiValue).send({
-			from: this.state.carteiraAtiva
-		}).then(
-			(response) => {
-				const obj = response.events.NovoAnuncio.returnValues;
-				return obj._idAnuncio;
 
-			}
-		);
-		this.carregarAnuncios();
-		console.log('anunciado! id: ', idAnuncio);
-		this.setState({ loading: "none" });
-		alert(`id: ${idAnuncio} \nvalor do imovel : ${this.state.valorAnuncio}`);
+		try{
+			const idAnuncio = await window.contract.methods.anunciar(weiValue).send({
+				from: this.state.carteiraAtiva
+			}).then(
+				(response) => {
+					const obj = response.events.NovoAnuncio.returnValues;
+					return obj._idAnuncio;
+	
+				}
+			);
+			this.carregarAnuncios();
+			alert(`id: ${idAnuncio} \nValor do imovel : ${this.state.valorAnuncio}`);			
+		}catch(error){
+			alert('Falha ao validar transação (Anunciar) na rede blockchain!');
+		}finally{
+			this.setState({ loading: "none" });
+		}
 
 	}
 
 	abortar = async (_idAnuncio) => {
 		this.setState({ loading: "block" });
 		await this.getCurrentAccount();
-		const idAnuncio = await window.contract.methods.abortar(_idAnuncio).send({
-			from: this.state.carteiraAtiva
-		}).then(
-
-			(response) => {
-				const obj = response.events.Abortado.returnValues;
-				return obj._idAnuncio;
-
-			}
-		);
-		this.carregarAnuncios();
-		this.setState({ loading: "none" });
-		alert(`Abortado. id: ${_idAnuncio}`);
+		try{
+			const idAnuncio = await window.contract.methods.abortar(_idAnuncio).send({
+				from: this.state.carteiraAtiva
+			}).then(
+	
+				(response) => {
+					const obj = response.events.Abortado.returnValues;
+					return obj._idAnuncio;
+	
+				}
+			);
+			this.carregarAnuncios();
+			alert(`Abortado. id: ${idAnuncio}`);
+		}catch(erro){
+			alert("Falha ao validar transação (Abortar) na rede blockchain!");
+		}finally{
+			this.setState({ loading: "none" });
+		}
 
 	}
 
 	comprar = async (anuncio, senha) => {
 		this.setState({ loading: "block" });
 		await this.getCurrentAccount();
-		const idAnuncio = await window.contract.methods.comprar(anuncio.id, this.state.senhaCompra).send({
-			from: this.state.carteiraAtiva,
-			value: anuncio.valorImovel
-		}).then(
-
-			(response) => {
-				const obj = response.events.CompraConfirmada.returnValues;
-				return obj._idAnuncio;
-
-			}
-		);
-		this.carregarAnuncios();
-		this.setState({ loading: "none" });
-		alert(`Transação de compra em andamento. Confirme o recebimento. id: ${idAnuncio}`);
+		let idAnuncio;
+		try{
+			idAnuncio = await window.contract.methods.comprar(anuncio.id, this.state.senhaCompra).send({
+				from: this.state.carteiraAtiva,
+				value: anuncio.valorImovel
+			}).then(
+	
+				(response) => {
+					const obj = response.events.CompraConfirmada.returnValues;
+					return obj._idAnuncio;
+	
+				}
+				);
+				this.carregarAnuncios();
+				alert(`Transação de compra em andamento. Confirme o recebimento. id: ${idAnuncio}`);
+		}catch(error){
+			alert('Falha ao validar transação (Comprar) na rede blockchain!');
+		}finally{
+			this.setState({ loading: "none" });
+		}
 	}
 
 	confirmarRecebimento = async (anuncio, senha) => {
 		this.setState({ loading: "block" });
 		await this.getCurrentAccount();
-		const idAnuncio = await window.contract.methods.confirmarRecebimento(anuncio.id, this.state.senhaCompra).send({
-			from: this.state.carteiraAtiva
-		}).then(
-
-			(response) => {
-				const obj = response.events.ItemRecebido.returnValues;
-				return obj._idAnuncio;
-
-			}
-		);
-		this.carregarAnuncios();
-		this.setState({ loading: "none" });
-		alert(`Compra confirmada. id: ${idAnuncio}`);
+		try{
+			const idAnuncio = await window.contract.methods.confirmarRecebimento(anuncio.id, this.state.senhaCompra).send({
+				from: this.state.carteiraAtiva
+			}).then(
+	
+				(response) => {
+					const obj = response.events.ItemRecebido.returnValues;
+					return obj._idAnuncio;
+	
+				}
+			);
+			this.carregarAnuncios();
+			alert(`Compra confirmada. id: ${idAnuncio}`);
+		}catch(erro){
+			alert("Falha ao validar transação (confirmarRecebimento) na rede blockchain!");
+		}finally{
+			this.setState({ loading: "none" });
+		}
 	}
 
 	pedirReembolso = async (anuncio, senha) => {
 		this.setState({ loading: "block" });
 		console.log('id: ', anuncio.id);
 		await this.getCurrentAccount();
-		const idAnuncio = await window.contract.methods.pedirReembolso(anuncio.id, this.state.senhaCompra).send({
-			from: this.state.carteiraAtiva
-		}).then(
-
-			(response) => {
-				const obj = response.events.CompradorReembolsado.returnValues;
-				return obj._idAnuncio;
-
-			}
-		);
-		this.carregarAnuncios();
-		this.setState({ loading: "none" });
-		alert(`Pedido de reembolso confirmado. id: ${idAnuncio}`);
+		try{
+			const idAnuncio = await window.contract.methods.pedirReembolso(anuncio.id, this.state.senhaCompra).send({
+				from: this.state.carteiraAtiva
+			}).then(
+	
+				(response) => {
+					const obj = response.events.CompradorReembolsado.returnValues;
+					return obj._idAnuncio;
+	
+				}
+			);
+			this.carregarAnuncios();
+			alert(`Pedido de reembolso confirmado. id: ${idAnuncio}`);
+		}catch(erro){
+			alert('Falha ao validar transação (Anunciar) na rede blockchain!');
+		}finally{
+			this.setState({ loading: "none" });
+		}
 	}
 
 
 	getCurrentAccount = async () => {
-		const account = await window.web3.eth.getAccounts()
-			.then((response) => { this.setState({ carteiraAtiva: response[0].toString() }); console.log('cartAtv: ', this.state.carteiraAtiva); return response[0].toString(); })
-		return account;
+		try{
+			const account = await window.web3.eth.getAccounts()
+				.then((response) => { this.setState({ carteiraAtiva: response[0].toString() }); console.log('cartAtv: ', this.state.carteiraAtiva); return response[0].toString(); })
+			return account;
+		}catch(erro){
+			alert('Não foi possível identificar uma carteira ativa. Por favor, realize o login no MetaMask');
+		}
 	}
 
 	render() {
