@@ -10,7 +10,7 @@ contract Venda_imovel {
   // DECLARAÇÃO DE VARIÁVEIS
     
   // enum Forma_pagamento { A_vista, Parcelado }
-  enum Estado { Vazio, Ativo, Em_andamento, Liberado }        // Define o estado do anúncio
+  enum Estado { Vazio, Ativo, Em_andamento, Concluido }        // Define o estado do anúncio
     
   struct anuncio {
     address payable vendedor;
@@ -63,7 +63,8 @@ contract Venda_imovel {
     require(a.estado == Estado.Ativo, "Estado invalido.");
     
     emit Abortado(msg.sender, id);
-    limparAnuncio(id);
+    a.estado = Estado.Vazio;
+    remove(id);
   }
 
   /// @dev Devolve uma lista de identificadores de anúncios.
@@ -104,9 +105,8 @@ contract Venda_imovel {
     require(keccak256(abi.encodePacked(key, id, a.comprador)) == a.safeHash, "Senha incorreta!");
         
     emit ItemRecebido(id);
-    a.estado = Estado.Liberado;   
-    a.vendedor.transfer(a.valorImovel);   
-    limparAnuncio(id);
+    a.estado = Estado.Concluido;   
+    a.vendedor.transfer(a.valorImovel);
   }
 
 
@@ -124,19 +124,6 @@ contract Venda_imovel {
     a.comprador.transfer(a.valorImovel);
     a.comprador = payable(address(0));
   }
-    
-  /// @dev Limpa o espaço onde está salvo o anúncio.
-  /// @param id Identificador do anúncio a ser limpo.
-  function limparAnuncio(uint id) private {
-    remove(id);
-    anuncio storage a = Anuncios[id];
-	    
-    a.comprador = payable(address(0));
-	  a.vendedor = payable(address(0));
-	  a.valorImovel = 0;
-	  a.safeHash = 0;
-	  a.estado = Estado.Vazio;
-	}
     
   /// @dev Remove um identificador da listAnuncios.
   /// @param id Identificador do anúncio a ser removido da lista.

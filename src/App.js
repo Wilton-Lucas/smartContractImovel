@@ -2,7 +2,6 @@ import React, {
 	Component
 } from 'react';
 import Web3 from 'web3'
-import './css/App.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -10,6 +9,7 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import './css/App.css';
 
 
 class App extends Component {
@@ -28,7 +28,6 @@ class App extends Component {
 
 
 	componentDidMount() {
-
 		if (window.ethereum) {
 			window.web3 = new Web3(window.ethereum);
 			window.ethereum.enable();
@@ -283,7 +282,7 @@ class App extends Component {
 				"stateMutability": "view",
 				"type": "function"
 			}
-		], '0xD5401f6f37502601a64D2EAB125F4f72B48331E9');
+		], '0xd21E51b10aFC1C9905d594564d43cC5f37Ec741A');
 
 		//Carregar dados do contrato
 		this.getCurrentAccount();
@@ -464,9 +463,8 @@ class App extends Component {
 	render() {
 		return (
 			< div >
-				<div className="header">
-					<h1 style={{ color: "white", marginLeft: "45%" }}> Venda de imóveis </h1>
-					<hr />
+				<div className="App-header">
+					<h1>Venda de imóveis</h1>
 				</div>
 				<div>
 					<TabView>
@@ -497,7 +495,7 @@ class App extends Component {
 						<TabPanel header="Minhas Operações">
 							<div>
 								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
-								{this.state.anuncios.filter((elem, index, arr) => (elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva)).map(anuncio => <ul key={anuncio.id}>
+								{this.state.anuncios.filter((elem, index, arr) => (elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva) && elem.estado !== "3" ).map(anuncio => <ul key={anuncio.id}>
 									<img src="./imovel.jpg" alt="some text" width="150" /><br />
 									<div style={{ marginTop: "5px", marginBottom: "5px" }} >
 										<Button style={anuncio.estado === "1" && anuncio.vendedor === this.state.carteiraAtiva ? {} : { display: "none" }} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
@@ -512,8 +510,18 @@ class App extends Component {
 									Valor: {anuncio.valorImovel}
 
 								</ul>)}
+							</div>
+						</TabPanel>
+						<TabPanel header="Histórico">
+							<div>
+								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
 
-
+								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "3").map(anuncio => <ul key={anuncio.id}>
+									<img src="./imovel.jpg" alt="some text" width="150" />
+									Vendedor: {anuncio.vendedor} <br />
+									Comprador: { anuncio.comprador} <br />
+									Valor: {anuncio.valorImovel}
+								</ul>)}
 							</div>
 						</TabPanel>
 					</TabView>
