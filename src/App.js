@@ -5,9 +5,12 @@ import Web3 from 'web3'
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
 import { TabView, TabPanel } from 'primereact/tabview';
+import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
+// import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import './css/App.css';
 
@@ -311,7 +314,7 @@ class App extends Component {
 							vendedor: response.vendedor,
 							comprador: response.comprador,
 							valorImovel: response.valorImovel,
-							estado: response.estado,
+							estado: response.estado
 						};
 
 						let lista = this.state.anuncios;
@@ -479,49 +482,71 @@ class App extends Component {
 							</div>
 						</TabPanel>
 						<TabPanel header="Comprar Imóvel">
-							<div>
-								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
+							<ProgressSpinner
+								style={{ width: '50px', height: '50px', display: this.state.loading }}
+								strokeWidth="8" fill="#EEEEEE" animationDuration=".5s"
+							/>
 
-								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "1").map(anuncio => <ul key={anuncio.id}>
-									<img src="./imovel.jpg" alt="some text" width="150" />
-									<Button label="Comprar" style={{ marginLeft: "25px", marginBottom: "15px" }} disabled={anuncio.vendedor === this.state.carteiraAtiva} className="p-button-raised p-button-rounded p-button-success" onClick={() => this.comprar(anuncio, this.state.senhaCompra)} /> <br />
-									Vendedor: {anuncio.vendedor} <br />
-									Valor: {anuncio.valorImovel}
+							<div className="p-grid p-dir-col">
+								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "1").map(anuncio => <div key={anuncio.id} className="p-col">
+									<Card>
+										<Button
+											label='Comprar' style={{ float: 'right' }}
+											disabled={anuncio.vendedor === this.state.carteiraAtiva}
+											onClick={() => this.comprar(anuncio, this.state.senhaCompra)}
+											className="p-button-raised p-button-rounded p-button-success"
+										/>
 
-								</ul>)}
-
+										<img src="./imovel.jpg" alt="some text" width="150"/>
+										<p>
+											Vendedor: {anuncio.vendedor} <br />
+											Valor: {anuncio.valorImovel / 1e9} GWei
+										</p>
+									</Card>
+								</div>)}
 							</div>
 						</TabPanel>
 						<TabPanel header="Minhas Operações">
-							<div>
-								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
-								{this.state.anuncios.filter((elem, index, arr) => (elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva) && elem.estado !== "3" ).map(anuncio => <ul key={anuncio.id}>
-									<img src="./imovel.jpg" alt="some text" width="150" /><br />
-									<div style={{ marginTop: "5px", marginBottom: "5px" }} >
-										<Button style={anuncio.estado === "1" && anuncio.vendedor === this.state.carteiraAtiva ? {} : { display: "none" }} label="Cancelar Anúncio" className="{} p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} />
-									</div>
-									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
-										<Button style={((anuncio.estado === "2") && (anuncio.comprador === this.state.carteiraAtiva)) ? {} : { display: "none" }} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} />
-									</div>
-									<div style={{ marginTop: "5px", marginBottom: "5px" }}>
-										<Button style={anuncio.estado === "2" ? {} : { display: "none" }} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
-									</div>
-									Vendedor: {anuncio.vendedor} <br />
-									Valor: {anuncio.valorImovel}
+							<ProgressSpinner
+								style={{ width: '50px', height: '50px', display: this.state.loading }}
+								strokeWidth="8" fill="#EEEEEE" animationDuration=".5s"
+							/>
 
-								</ul>)}
+							<div className="p-grid p-dir-col">	
+								{this.state.anuncios.filter((elem, index, arr) => (elem.vendedor === this.state.carteiraAtiva || elem.comprador === this.state.carteiraAtiva) && elem.estado !== "3" ).map(anuncio => <div key={anuncio.id} className="p-col">
+									<Card>
+										<div title="Botoes_minhasOperacoes" style={{float: "right"}}>
+											<Button style={anuncio.estado === "1" && anuncio.vendedor === this.state.carteiraAtiva ? {} : { display: "none" }} label="Cancelar Anúncio" className="p-button-raised p-button-rounded p-button-danger" onClick={() => this.abortar(anuncio.id)} /><br />
+											<Button style={((anuncio.estado === "2") && (anuncio.comprador === this.state.carteiraAtiva)) ? {} : { display: "none" }} label="Pedir Reembolso" className="p-button-raised p-button-rounded p-button-warning" onClick={() => this.pedirReembolso(anuncio, this.state.senhaCompra)} /><br />
+											<Button style={anuncio.estado === "2" ? {} : { display: "none" }} label="Confirmar Recebimento" className="p-button-raised p-button-rounded " onClick={() => this.confirmarRecebimento(anuncio, this.state.senhaCompra)} /> <br />
+										</div>
+										
+										<img src="./imovel.jpg" alt="some text" width="150" />
+										<p>
+											Vendedor: {anuncio.vendedor} <br />
+											Valor: {anuncio.valorImovel / 1e9} GWei
+										</p>
+									</Card>
+								</div>)}
 							</div>
 						</TabPanel>
 						<TabPanel header="Histórico">
-							<div>
-								<ProgressSpinner style={{ width: '50px', height: '50px', display: this.state.loading }} strokeWidth="8" fill="#EEEEEE" animationDuration=".5s" />
+							<ProgressSpinner
+								style={{ width: '50px', height: '50px', display: this.state.loading }}
+								strokeWidth="8" fill="#EEEEEE" animationDuration=".5s"
+							/>
 
-								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "3").map(anuncio => <ul key={anuncio.id}>
-									<img src="./imovel.jpg" alt="some text" width="150" />
-									Vendedor: {anuncio.vendedor} <br />
-									Comprador: { anuncio.comprador} <br />
-									Valor: {anuncio.valorImovel}
-								</ul>)}
+							<div className="p-grid p-dir-col">	
+								{this.state.anuncios.filter((elem, index, arr) => elem.estado === "3").map(anuncio => <div key={anuncio.id} className="p-col">
+									<Card>
+										<img src="./imovel.jpg" alt="some text" width="150" />
+										<p>
+											Vendedor: {anuncio.vendedor} <br />
+											Comprador: { anuncio.comprador} <br />
+											Valor: {anuncio.valorImovel / 1e9} GWei
+										</p>
+									</Card>
+								</div>)}
 							</div>
 						</TabPanel>
 					</TabView>
